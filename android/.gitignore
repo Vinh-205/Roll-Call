@@ -12,3 +12,9 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Include a complete Gradle wrapper for the submitted source.
+!/gradlew
+!/gradlew.bat
+!/gradle/wrapper/gradle-wrapper.jar
+
