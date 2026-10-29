@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+const base=process.env.TEST_API_URL||'http://127.0.0.1:5188/api';
+if(!['localhost','127.0.0.1'].includes(new URL(base).hostname))throw new Error('This test creates sandbox records; local test server only.');
+let checks=0;
+async function request(method,path,data,token,status=200,extra={}){
+ const response=await fetch(`${base}/${path}`,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`} :{}),...extra},...(data?{body:JSON.stringify(data)}:{})});
+ const value=await response.json();assert.equal(response.status,status,`${method} ${path}: ${JSON.stringify(value)}`);checks++;return value;
+}
+async function register(username){const pending=await request('POST','auth/register',{username,email:`${username}@example.com`,name:username,password:'CatCheck2577',studentCode:username},null,201);assert.match(pending.testOnlyCode,/^\d{6}$/);await request('POST','auth/verify',{challengeId:pending.challengeId,code:'wrong'},null,400);const data=await request('POST','auth/verify',{challengeId:pending.challengeId,code:pending.testOnlyCode});await request('POST','auth/verify',{challengeId:pending.challengeId,code:pending.testOnlyCode},null,401);return data;}
+const suffix=Date.now().toString().slice(-8);
+const admin=await register(`admin${suffix}`),teacher=await register(`teacher${suffix}`),student=await register(`student${suffix}`),outsider=await register(`outside${suffix}`);
+await request('POST','setup/admin',{email:admin.user.email},null,200,{'X-Bootstrap-Secret':'local-integration-test-only'});
+await request('PUT',`users/${teacher.user.id}`,{role:'teacher'},admin.token);
+await request('GET','users',null,student.token,403);
+await request('POST','courses',{name:'Forbidden',code:'FORBIDDEN',room:'A'},student.token,403);
+const course=await request('POST','courses',{name:'Lập trình di động',code:`T${suffix}`,room:'E1.04'},teacher.token,201);
+await request('PUT',`courses/${course.id}`,{name:'LTDD nhóm 4 con mèo',room:'E1.05'},teacher.token);
+await request('POST','courses/join',{code:course.code},student.token);
+const roster=await request('GET',`courses/${course.id}/members`,null,teacher.token);assert.equal(roster.length,1);
+await request('GET',`courses/${course.id}/members`,null,student.token,403);
+const session=await request('POST','sessions',{courseId:course.id,title:'Kiểm thử QR',starts:Date.now()-60000,ends:Date.now()+3600000,lateMinutes:15,lat:10.8,lng:106.7,radius:150},teacher.token,201);
+await request('GET',`sessions/${session.id}/qr`,null,student.token,403);
+const qr=await request('GET',`sessions/${session.id}/qr`,null,teacher.token);const qrToken=qr.qr.split(':')[2];
+await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:10.8,lng:106.7,accuracy:10},outsider.token,403);
+await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:11.8,lng:106.7,accuracy:10},student.token,400);
+await request('POST',`sessions/${session.id}/checkin`,{qrToken:'expired',lat:10.8,lng:106.7,accuracy:10},student.token,400);
+await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:10.8,lng:106.7,accuracy:200},student.token,400);
+const present=await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:10.8,lng:106.7,accuracy:10},student.token,201);assert.equal(present.status,'present');
+await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:10.8,lng:106.7,accuracy:10},student.token,409);
+const rows=await request('GET',`sessions/${session.id}/attendance`,null,teacher.token);assert.equal(rows[0].status,'present');
+await request('PUT',`sessions/${session.id}`,{closed:true},teacher.token);
+await request('POST',`sessions/${session.id}/checkin`,{qrToken,lat:10.8,lng:106.7,accuracy:10},student.token,400);
+const second=await request('POST','sessions',{courseId:course.id,title:'Buổi giải trình',starts:Date.now()-60000,ends:Date.now()+3600000},teacher.token,201);
+const explanation=await request('POST','explanations',{sessionId:second.id,message:'Mạng yếu, mong thầy kiểm tra.'},student.token,201);
+await request('PUT',`explanations/${explanation.id}`,{message:'Em bị mất kết nối, có mặt tại lớp.'},student.token);
+await request('PUT',`explanations/${explanation.id}`,{status:'approved',note:'Đã xác nhận trực tiếp.'},teacher.token);
+await request('PUT',`explanations/${explanation.id}`,{message:'Không được sửa nữa.'},student.token,403);
+const history=await request('GET','history',null,student.token);assert.equal(history.length,2);assert.ok(history.some(r=>r.status==='excused'));
+await request('DELETE',`sessions/${second.id}`,null,student.token,403);
+await request('DELETE',`sessions/${second.id}`,null,teacher.token);
+await request('DELETE',`courses/${course.id}`,null,teacher.token);
+await request('POST','auth/logout',{},student.token);
+await request('GET','auth/me',null,student.token,401);
+console.log(`PASS ${checks} API checks: email-OTP sandbox, roles, CRUD, GPS radius, QR, duplicates, explanations, revocation.`);

@@ -1,0 +1,38 @@
+LỜI LỒNG TIẾNG DEMO ROLL CALL
+Trương Tuấn Vĩnh — 2380602577 — nhóm 4 con mèo
+
+[1. GIỚI THIỆU]
+Em chào thầy. Em là Trương Tuấn Vĩnh, mã số sinh viên 2380602577, thuộc nhóm 4 con mèo. Bài kiểm tra của em là Roll call, ứng dụng điểm danh cho sinh viên được xây dựng bằng Flutter. Ứng dụng tập trung vào ba việc: điểm danh nhanh, ghi nhận vị trí khi người dùng đồng ý và giải trình minh bạch khi có vấn đề.
+
+[2. ĐĂNG KÝ VÀ ĐĂNG NHẬP]
+Người dùng đăng ký bằng email, tên đăng nhập và mật khẩu. Hệ thống gửi mã xác thực về Gmail để xác nhận địa chỉ email. Khi đăng nhập, người dùng phải nhập đúng tên đăng nhập và mật khẩu, sau đó nhập mã OTP được gửi từ máy chủ. Mã OTP chỉ dùng một lần và có thời hạn. Ứng dụng không dùng mã xác thực cố định. Phiên đăng nhập được lưu trong kho bảo mật của điện thoại; khi đăng xuất, token bị thu hồi trên máy chủ.
+
+[3. PHÂN QUYỀN]
+Ứng dụng có ba vai trò. Quản trị viên quản lý tài khoản và các lớp học. Giảng viên quản lý lớp mình phụ trách, tạo buổi học, mở mã QR và duyệt giải trình. Sinh viên chỉ truy cập lớp đã tham gia, thực hiện điểm danh và xem lịch sử của mình. Quyền được kiểm tra ở backend; giao diện không chỉ đơn giản ẩn nút quản trị.
+
+[4. CRUD]
+Ở phần lớp học, em tạo lớp mới, cập nhật tên hoặc phòng học, thêm sinh viên và tạo các buổi học. Em cũng có thể sửa hoặc xóa dữ liệu thử. Sau khi tải lại, dữ liệu vẫn được lưu trên máy chủ. Việc xóa có bước xác nhận để tránh thao tác nhầm. Các thao tác quản trị chỉ dành cho vai trò phù hợp.
+
+[5. QR VÀ CHIA SẺ VỊ TRÍ]
+Đây là màn hình buổi học của quản trị viên. Mã QR có thời hạn và được làm mới. Trên điện thoại thật, sinh viên mở camera để quét mã của buổi học. Trước khi gửi vị trí, ứng dụng hỏi người dùng xác nhận. Máy chủ kiểm tra sinh viên có thuộc lớp không, buổi học còn mở không, QR còn hợp lệ không và vị trí có nằm trong bán kính đã cấu hình không. Nếu hợp lệ, hệ thống lưu trạng thái đúng giờ hoặc đến muộn cùng thời gian và dữ liệu vị trí. Em tải lại màn hình quản trị để đối chiếu bản ghi vừa được gửi từ điện thoại. Việc quét lại cùng buổi không tạo thêm bản ghi trùng.
+
+[6. GIẢI TRÌNH]
+Khi có sự cố, sinh viên có thể gửi giải trình cho buổi học. Trước khi được xử lý, sinh viên được sửa hoặc xóa yêu cầu của mình. Giảng viên hoặc quản trị viên xem lý do, nhập phản hồi và quyết định chấp nhận hoặc từ chối. Sinh viên xem được kết quả và thời gian xử lý trong lịch sử. Đây là hướng tính năng bổ sung mà em đề xuất; em không khẳng định quy trình giải trình chưa từng có trong mọi ứng dụng khác.
+
+[7. CẢM BIẾN CHUYỂN ĐỘNG]
+Chức năng thứ ba trong nhóm chức năng thuyết trình là đo chuyển động. Ở màn hình Nhịp học, em bật cảm biến rồi di chuyển nhẹ điện thoại. Số gia tốc và đồ thị thay đổi theo dữ liệu thật của thiết bị. Màn hình cũng có bộ đếm phiên tập trung và nhắc nghỉ vận động. Dữ liệu cảm biến được xử lý trên thiết bị, không được dùng để kết luận sinh viên có mặt và không thay cho bước QR hay GPS.
+
+[8. GIAO DIỆN ROLL CALL]
+Giao diện Roll call có chế độ sáng và tối, thanh điều hướng nổi và hiệu ứng chuyển mục. Các màn hình dùng cùng hệ màu, chữ và biểu tượng để người dùng dễ nhận biết chức năng. Hiệu ứng mở ứng dụng được điều chỉnh cho phù hợp với nhận diện Roll call.
+
+[9. TRIỂN KHAI VÀ KẾT THÚC]
+Backend đã được triển khai qua HTTPS công khai. Điện thoại có thể truy cập bằng internet, không cần giữ một server localhost chạy trên máy tính. Source code, hướng dẫn cài đặt và bản APK được cung cấp trong repository GitHub của em. Ba chức năng em chọn theo đề là chia sẻ vị trí, đo chuyển động và quét QR. Em đã thử trên điện thoại Redmi thực tế, đối chiếu bản ghi điểm danh trên máy chủ và kiểm tra các thao tác cơ bản. Em cảm ơn thầy đã theo dõi.
+
+GHI CHÚ KHI THU ÂM
+- Đọc theo thao tác quay thực tế; bỏ hoặc đổi câu nếu cảnh chưa làm được.
+- Che mật khẩu, OTP và tọa độ chi tiết trong video.
+- Mở thử link APK trên GitHub trước khi quay cảnh bản phát hành.
+- Thời lượng thường khoảng 5–7 phút, tùy nhịp đọc và thời gian chờ OTP; có thể cắt cảnh chờ thay vì đọc nhanh.
+
+[10. API SWAGGER CÔNG KHAI]
+Đây là trang Swagger của Roll call được công khai trên tên miền Cloudflare Workers của em. Em có thể kiểm tra sức khỏe API, đăng nhập nhận OTP, xác thực để lấy token rồi thử các chức năng theo vai trò. Google Apps Script chỉ làm nhiệm vụ gửi email OTP. Cổng API Cloudflare chuyển tiếp đến backend dữ liệu hiện có, không sử dụng localhost.

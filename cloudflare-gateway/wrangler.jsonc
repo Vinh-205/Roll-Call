@@ -1,0 +1,8 @@
+{
+  "name": "truong-tuan-vinh-2380602577-roll-call",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-29",
+  "account_id": "36103e39d1336ae28f1e13ac214490fe",
+  "workers_dev": true,
+  "preview_urls": false
+}

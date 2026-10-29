@@ -1,0 +1,1833 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Roll call · Student Attendance API",
+    "version": "1.0.0",
+    "description": "Trương Tuấn Vĩnh · 2380602577 · Nhóm 4 con mèo.\n\nAPI HTTPS công khai đang dùng bởi ứng dụng Flutter. Backend Cloudflare Workers + D1; Google Apps Script chỉ chuyển tiếp email OTP.\n\n**Cách thử:** 1. POST /auth/login bằng tài khoản của bạn. 2. Lấy challengeId, đọc OTP trong Gmail và gọi POST /auth/verify. 3. Sao chép token, bấm **Authorize** rồi dán token. 4. Thử GET /auth/me và GET /courses. Các lệnh tạo/sửa/xóa thực sự tác động dữ liệu; chỉ dùng dữ liệu demo. Không chia sẻ mật khẩu, OTP hoặc token trong video."
+  },
+  "servers": [
+    {
+      "url": "https://truong-tuan-vinh-2577-catcheck.dreamy-gem-3550.chatgpt.site/api",
+      "description": "Production · API công khai"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System"
+    },
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Courses"
+    },
+    {
+      "name": "Sessions"
+    },
+    {
+      "name": "Attendance"
+    },
+    {
+      "name": "Explanations"
+    },
+    {
+      "name": "Admin"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Dán token lấy từ /auth/verify. Token opaque; không phải JWT. Swagger tự thêm tiền tố Bearer."
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Kiểm tra API và cấu hình Email OTP",
+        "description": "Không cần đăng nhập.",
+        "operationId": "get__health",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Đăng ký và gửi OTP đến email",
+        "description": "Tài khoản mới luôn là sinh viên. Trả về challengeId; gọi /auth/verify với OTP trong Gmail. Chờ 60 giây trước khi gửi lại.",
+        "operationId": "post__auth_register",
+        "responses": {
+          "201": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 40,
+                    "pattern": "^[a-z0-9_.]+$"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 8,
+                    "description": "Có chữ và số. Tự nhập mật khẩu; không dùng mật khẩu minh họa."
+                  },
+                  "studentCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "username",
+                  "email",
+                  "name",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Đăng nhập bằng tài khoản và mật khẩu, nhận Email OTP",
+        "description": "Chưa trả token ở bước này. Sao chép challengeId từ response để xác thực OTP.",
+        "operationId": "post__auth_login",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Tên đăng nhập hoặc email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Xác thực OTP và nhận Bearer token",
+        "description": "Sao chép trường token trong response, bấm Authorize và dán token (không thêm chữ Bearer).",
+        "operationId": "post__auth_verify",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "challengeId": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$",
+                    "description": "OTP 6 chữ số nhận trong email, có hiệu lực 10 phút, chỉ dùng một lần."
+                  }
+                },
+                "required": [
+                  "challengeId",
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Thông tin và vai trò người đang đăng nhập",
+        "description": "",
+        "operationId": "get__auth_me",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Đăng xuất và thu hồi token hiện tại",
+        "description": "",
+        "operationId": "post__auth_logout",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sửa hồ sơ cá nhân",
+        "description": "",
+        "operationId": "put__profile",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "studentCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Danh sách lớp theo quyền tài khoản",
+        "description": "",
+        "operationId": "get__courses",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Tạo lớp học",
+        "description": "Admin hoặc giảng viên.",
+        "operationId": "post__courses",
+        "responses": {
+          "201": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "3–30 ký tự A–Z, số, gạch nối hoặc gạch dưới"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "room": {
+                    "type": "string"
+                  },
+                  "teacherId": {
+                    "type": "string",
+                    "description": "Tùy chọn cho Admin; bỏ qua để giao cho chính mình"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name",
+                  "room"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses/{courseId}": {
+      "put": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Sửa tên lớp và phòng",
+        "description": "",
+        "operationId": "put__courses__courseId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "room": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "room"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Xóa lớp học và dữ liệu liên quan",
+        "description": "Chỉ thử trên lớp demo do bạn tạo.",
+        "operationId": "delete__courses__courseId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/courses/join": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Sinh viên tham gia bằng mã lớp",
+        "description": "",
+        "operationId": "post__courses_join",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses/{courseId}/members": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Danh sách sinh viên trong lớp",
+        "description": "Admin hoặc giảng viên phụ trách.",
+        "operationId": "get__courses__courseId__members",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Thêm sinh viên đã xác thực",
+        "description": "",
+        "operationId": "post__courses__courseId__members",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Tên đăng nhập hoặc email sinh viên"
+                  }
+                },
+                "required": [
+                  "username"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses/{courseId}/members/{userId}": {
+      "delete": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Xóa sinh viên khỏi lớp",
+        "description": "",
+        "operationId": "delete__courses__courseId__members__userId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/sessions": {
+      "get": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Danh sách buổi học theo quyền tài khoản",
+        "description": "",
+        "operationId": "get__sessions",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Tạo buổi học và vùng điểm danh",
+        "description": "Admin hoặc giảng viên phụ trách. GPS tùy chọn nhưng phải cung cấp cả lat và lng.",
+        "operationId": "post__sessions",
+        "responses": {
+          "201": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "courseId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "starts": {
+                    "type": "number",
+                    "description": "Unix timestamp mili giây"
+                  },
+                  "ends": {
+                    "type": "number",
+                    "description": "Unix timestamp mili giây; sau starts ít nhất 60 giây, tối đa 24 giờ"
+                  },
+                  "lateMinutes": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 180,
+                    "default": 15
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "nullable": true
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "nullable": true
+                  },
+                  "radius": {
+                    "type": "number",
+                    "minimum": 30,
+                    "maximum": 2000,
+                    "default": 150
+                  }
+                },
+                "required": [
+                  "courseId",
+                  "title",
+                  "starts",
+                  "ends"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{sessionId}": {
+      "put": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Sửa lịch hoặc đóng/mở buổi học",
+        "description": "Gửi closed để đóng/mở; hoặc gửi đủ thông tin lịch để sửa. Sửa lịch sẽ vô hiệu hóa QR cũ.",
+        "operationId": "put__sessions__sessionId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "starts": {
+                        "type": "number",
+                        "description": "Unix timestamp mili giây"
+                      },
+                      "ends": {
+                        "type": "number",
+                        "description": "Unix timestamp mili giây"
+                      },
+                      "lateMinutes": {
+                        "type": "number",
+                        "default": 15
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "starts",
+                      "ends"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "closed": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "closed"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Xóa buổi học và dữ liệu liên quan",
+        "description": "",
+        "operationId": "delete__sessions__sessionId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/sessions/{sessionId}/qr": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Tạo/làm mới mã QR buổi học",
+        "description": "Chỉ Admin/giảng viên. QR có hiệu lực 90 giây. Mỗi lần gọi sẽ vô hiệu hóa QR trước đó. Chuỗi QR trả về có dạng catcheck:sessionId:qrToken; tiền tố kỹ thuật được giữ để tương thích app.",
+        "operationId": "get__sessions__sessionId__qr",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/sessions/{sessionId}/attendance": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Danh sách điểm danh của buổi học",
+        "description": "Admin/giảng viên phụ trách. Có trạng thái, thời gian, độ chính xác và khoảng cách GPS.",
+        "operationId": "get__sessions__sessionId__attendance",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/sessions/{sessionId}/checkin": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Sinh viên điểm danh bằng QR và GPS",
+        "description": "Sinh viên phải thuộc lớp, buổi học đang mở, QR còn hạn và vị trí trong bán kính. Không nhập tọa độ giả để trình diễn.",
+        "operationId": "post__sessions__sessionId__checkin",
+        "responses": {
+          "201": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "qrToken": {
+                    "type": "string",
+                    "description": "Phần token cuối trong chuỗi QR, không phải toàn bộ chuỗi catcheck:..."
+                  },
+                  "lat": {
+                    "type": "number",
+                    "description": "Vĩ độ thực của thiết bị"
+                  },
+                  "lng": {
+                    "type": "number",
+                    "description": "Kinh độ thực của thiết bị"
+                  },
+                  "accuracy": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Độ chính xác GPS, đơn vị mét"
+                  }
+                },
+                "required": [
+                  "qrToken",
+                  "lat",
+                  "lng",
+                  "accuracy"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Lịch sử điểm danh của bản thân",
+        "description": "",
+        "operationId": "get__history",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      }
+    },
+    "/explanations": {
+      "get": {
+        "tags": [
+          "Explanations"
+        ],
+        "summary": "Danh sách giải trình theo quyền",
+        "description": "",
+        "operationId": "get__explanations",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Explanations"
+        ],
+        "summary": "Sinh viên gửi giải trình",
+        "description": "Mỗi buổi chỉ có một giải trình đang chờ duyệt của một sinh viên.",
+        "operationId": "post__explanations",
+        "responses": {
+          "201": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "sessionId",
+                  "message"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/explanations/{explanationId}": {
+      "put": {
+        "tags": [
+          "Explanations"
+        ],
+        "summary": "Sửa hoặc duyệt giải trình",
+        "description": "Sinh viên chỉ sửa nội dung của mình khi pending. Giảng viên/Admin duyệt bằng status và note. Duyệt chấp nhận bổ sung excused nếu chưa có điểm danh.",
+        "operationId": "put__explanations__explanationId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "explanationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "required": [
+                      "message"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "approved",
+                          "rejected"
+                        ]
+                      },
+                      "note": {
+                        "type": "string",
+                        "maxLength": 500
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "note"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Explanations"
+        ],
+        "summary": "Sinh viên xóa giải trình đang chờ duyệt",
+        "description": "",
+        "operationId": "delete__explanations__explanationId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "explanationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Danh sách tài khoản",
+        "description": "Chỉ Admin.",
+        "operationId": "get__users",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Đổi vai trò tài khoản",
+        "description": "Chỉ Admin; không tự đổi quyền chính mình.",
+        "operationId": "put__users__userId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "teacher",
+                      "student"
+                    ]
+                  }
+                },
+                "required": [
+                  "role"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Xóa tài khoản",
+        "description": "Chỉ Admin; không tự xóa mình, không xóa giảng viên đang phụ trách lớp.",
+        "operationId": "delete__users__userId_",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "ID lấy từ kết quả GET tương ứng"
+            }
+          }
+        ]
+      }
+    },
+    "/audit": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Nhật ký thao tác quản trị",
+        "description": "Chỉ Admin; tối đa 100 bản ghi gần nhất.",
+        "operationId": "get__audit",
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc OTP không hợp lệ"
+          },
+          "403": {
+            "description": "Không đủ quyền"
+          },
+          "409": {
+            "description": "Dữ liệu trùng hoặc trạng thái không cho phép"
+          },
+          "429": {
+            "description": "Vượt giới hạn gửi OTP/đăng nhập"
+          }
+        }
+      }
+    }
+  }
+}

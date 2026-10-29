@@ -1,0 +1,40 @@
+TRANG SWAGGER DE NOP BAI VA DEMO:
+https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger
+
+OPENAPI JSON:
+https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger/v1/swagger.json
+
+LINK API ROLL CALL
+
+Base URL:
+https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api
+
+Kiểm tra API công khai:
+https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api/health
+
+Các đường dẫn chính:
+POST /auth/register
+POST /auth/login
+POST /auth/verify
+GET  /auth/me
+POST /auth/logout
+GET/POST /courses
+PUT/DELETE /courses/{id}
+POST /courses/join
+GET/POST /courses/{id}/members
+DELETE /courses/{id}/members/{userId}
+GET/POST /sessions
+PUT/DELETE /sessions/{id}
+GET /sessions/{id}/qr
+GET /sessions/{id}/attendance
+POST /sessions/{id}/checkin
+GET /history
+GET/POST /explanations
+PUT/DELETE /explanations/{id}
+GET/PUT/DELETE /users[/{id}]
+GET /audit
+
+API dữ liệu yêu cầu Authorization: Bearer <token>.
+API public dùng cổng Cloudflare Workers trong tài khoản cá nhân, chuyển tiếp đến backend dữ liệu hiện có. Google Apps Script chỉ gửi Email OTP.
+Không đưa mật khẩu, token hoặc khóa mail vào README/video/GitHub.
+
