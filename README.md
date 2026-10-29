@@ -31,7 +31,7 @@ Android: tải APK, cho phép cài đặt từ trình duyệt nếu Android yêu
 | Giải trình | Sinh viên gửi lý do; giảng viên/Admin chấp nhận hoặc từ chối, ghi chú và thời gian xử lý |
 | Giao diện | Sáng/tối được lưu, thanh điều hướng nổi, chuyển trang trượt, icon SVG đồng bộ, splash Lottie thích nghi |
 
-Ba chức năng lựa chọn theo đề: **b — chia sẻ vị trí; d — đo chuyển động; e — nhận diện QR**. Giải trình là tính năng đề xuất; mức độ mới do giảng viên đánh giá, không khẳng định chưa app nào có.
+Điểm danh kết hợp mã QR có thời hạn và vị trí; màn hình Nhịp học sử dụng cảm biến chuyển động của thiết bị.
 
 ## Giao diện
 
@@ -63,9 +63,9 @@ APK tạo tại `build/app/outputs/flutter-apk/app-release.apk`. API mặc đị
 flutter run --dart-define=API_BASE_URL=https://YOUR-API-DOMAIN/api
 ```
 
-Không thay đổi tên package Flutter có họ tên/MSSV khi nộp bài. iOS có source nhưng chưa build/kiểm thử trên thiết bị Apple.
+Tên package Flutter giữ nhận diện tác giả. iOS có source nhưng chưa build/kiểm thử trên thiết bị Apple.
 
-## Sử dụng và demo
+## Sử dụng
 
 1. Đăng ký bằng email nhận thư được; nhập OTP 6 số trong Gmail. Đăng nhập cũng yêu cầu mật khẩu và OTP. Kiểm tra Spam nếu chưa thấy thư; chờ 60 giây giữa các lần gửi.
 2. Admin mở Cá nhân → Quản trị tài khoản, cấp vai trò Giảng viên cho thành viên phù hợp.
@@ -75,11 +75,7 @@ Không thay đổi tên package Flutter có họ tên/MSSV khi nộp bài. iOS c
 6. Mở Nhịp học, bật Chuyển động trực tiếp rồi nghiêng điện thoại nhẹ. Khi rời trang, cảm biến/timer được hủy theo vòng đời màn hình.
 7. Nút mặt trăng/mặt trời ở Trang chủ, đăng nhập hoặc Cá nhân chuyển giao diện sáng/tối.
 
-- [Kịch bản quay demo](docs/KICH_BAN_DEMO.md)
-- [Lời lồng tiếng](docs/LOI_LONG_TIENG_DEMO.txt)
 - [Link API và endpoint](docs/LINK_API.txt)
-- [Thông tin cá nhân, chức năng và điểm tự đánh giá](hovaten.txt)
-- [Kiểm thử thiết bị thật](docs/KIEM_THU_THIET_BI_THAT.md)
 
 ## Thử Swagger
 
@@ -139,6 +135,12 @@ Backend đang hoạt động công khai; để chạy app không cần triển k
 
 [Lucian UX/UI patterns](https://lucianlabs.dev/uxui-prompt/): tham khảo floating dock, form focus, startup transition và bố cục thẻ. [Morphicons](https://www.morphicons.com/) là thư viện chuyển đổi icon cho JavaScript, không có SDK Flutter chính thức; app dùng các đường SVG **Lucide** theo định dạng/nguồn icon được Morphicons hỗ trợ, hiển thị và animate bằng Flutter, không nhúng React/WebView. [Lucide](https://lucide.dev/) theo ISC; ghi nhận tại `docs/licenses`. Logo Roll call được vẽ riêng. Animation được thích nghi từ `Smart TB.json` người dùng cung cấp: giữ các lớp chuyển động, bỏ logo precomposition cũ, đổi màu/nhịp và ghép logo Roll call.
 
-## Kiểm thử và giới hạn
+## Kiểm tra source
 
-Trước thiết kế lại, đã thử OTP, GPS, cảm biến và quét QR đầu cuối trên Redmi Note 13 Pro 5G. Máy chủ ghi nhận điểm danh thành công. Bản giao diện mới được kiểm tra riêng trên máy ảo; không tự nhận đã thử lại mọi tính năng trên máy thật. Xem báo cáo thiết bị để phân biệt bằng chứng. Điểm số trong `hovaten.txt` là tự đánh giá, không phải điểm giảng viên cam kết.
+```bash
+flutter analyze
+flutter test
+node --test cloudflare-gateway/test.mjs
+```
+
+Bản 1.1.0 đã build APK release và kiểm tra trên máy ảo. Camera, GPS và cảm biến cần thiết bị Android có phần cứng tương ứng để kiểm thử đầy đủ.

@@ -1,4 +1,4 @@
-param([string]$OutputName='TruongTuanVinh_2380602577_CatCheck_source.zip')
+param([string]$OutputName='TruongTuanVinh_2380602577_RollCall_source.zip')
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression
 $root=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 if([IO.Path]::GetFileName($OutputName) -ne $OutputName){throw 'OutputName must be a file name.'}
 $target=Join-Path $outDir $OutputName
 $skipDirs=@('build','.dart_tool','.idea','.git','deliverables','node_modules','.wrangler','.sites-runtime','dist','outputs','.vinext','.next','.gradle','.kotlin','.cxx','.agents','.codex')
-$skipNames=@('.private.env','.email-setup.json','.flutter-plugins-dependencies','local.properties','next-env.d.ts','GeneratedPluginRegistrant.java')
+$skipNames=@('BAT_DAU_DEMO.md','KICH_BAN_DEMO.md','LOI_LONG_TIENG_DEMO.txt','NOP_BAI.txt','KIEM_THU_THIET_BI_THAT.md','RA_SOAT_YEU_CAU.md','hovaten.txt','.private.env','.email-setup.json','.flutter-plugins-dependencies','local.properties','next-env.d.ts','GeneratedPluginRegistrant.java')
 $stream=[IO.File]::Open($target,[IO.FileMode]::Create)
 $zip=[IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create)
 $count=0

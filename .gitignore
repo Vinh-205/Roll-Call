@@ -61,3 +61,12 @@ backend/dist/
 **/*.keystore
 **/*.jks
 
+
+# Local presentation and submission documents (not application source)
+/docs/BAT_DAU_DEMO.md
+/docs/KICH_BAN_DEMO.md
+/docs/LOI_LONG_TIENG_DEMO.txt
+/docs/NOP_BAI.txt
+/docs/KIEM_THU_THIET_BI_THAT.md
+/docs/RA_SOAT_YEU_CAU.md
+/hovaten.txt
