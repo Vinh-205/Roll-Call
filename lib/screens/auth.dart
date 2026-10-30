@@ -4,6 +4,7 @@ import '../core/api.dart';
 import '../core/ui.dart';
 import '../core/brand.dart';
 import '../core/biometrics.dart';
+import '../core/otp_input.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -226,28 +227,12 @@ class _AuthScreenState extends State<AuthScreen> {
                           : null,
                     ),
                   ] else
-                    TextFormField(
+                    OtpInput(
                       controller: otp,
                       enabled: !busy,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      autofillHints: const [AutofillHints.oneTimeCode],
-                      style: const TextStyle(
-                        fontSize: 28,
-                        letterSpacing: 10,
-                        fontWeight: FontWeight.w800,
-                      ),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        labelText: 'Mã xác thực 6 số',
-                        prefixIcon: RcIcon(
-                          RcIcons.verified_user_rounded,
-                          size: 20,
-                        ),
-                      ),
-                      validator: (v) => !RegExp(r'^\d{6}$').hasMatch(v ?? '')
-                          ? 'Nhập đủ 6 chữ số'
-                          : null,
+                      onSubmitted: (_) {
+                        if (!busy) submit();
+                      },
                     ),
                   if (error != null)
                     Padding(

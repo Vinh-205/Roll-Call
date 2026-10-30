@@ -9,7 +9,7 @@ Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **R
 
 ## Tải APK và dùng thử
 
-- [Tải APK Android v1.2.0](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.0/Roll-call-2380602577-v1.2.0.apk)
+- [Tải APK Android v1.2.1](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.1/Roll-call-2380602577-v1.2.1.apk)
 - [Các bản phát hành và source ZIP](https://github.com/Vinh-205/Roll-Call/releases)
 - [Swagger — xem và thử API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger/)
 - [Kiểm tra API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api/health)
@@ -162,3 +162,7 @@ node --test cloudflare-gateway/test.mjs
 ```
 
 Bản 1.2.0 đã build APK release và kiểm tra trên máy ảo. Camera, GPS và cảm biến cần thiết bị Android có phần cứng tương ứng để kiểm thử đầy đủ.
+
+### Nhập Email OTP
+
+Sáu ô mã xác thực có chiều rộng bằng nhau, cùng đường cơ sở và trạng thái focus rõ ràng. Một trình nhập hệ thống hỗ trợ dán mã, tự điền OTP và chỉ nhận tối đa sáu chữ số. Đã kiểm thử bố cục rộng 280 px với cỡ chữ 130%.
