@@ -1,16 +1,16 @@
 TRANG SWAGGER DE NOP BAI VA DEMO:
-https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger
+https://api.vihx.online/swagger
 
 OPENAPI JSON:
-https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger/v1/swagger.json
+https://api.vihx.online/swagger/v1/swagger.json
 
 LINK API ROLL CALL
 
 Base URL:
-https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api
+https://api.vihx.online/api
 
 Kiểm tra API công khai:
-https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api/health
+https://api.vihx.online/api/health
 
 Các đường dẫn chính:
 POST /auth/register

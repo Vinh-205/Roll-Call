@@ -11,8 +11,8 @@ Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **R
 
 - [Tải APK Android v1.2.1](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.1/Roll-call-2380602577-v1.2.1.apk)
 - [Các bản phát hành và source ZIP](https://github.com/Vinh-205/Roll-Call/releases)
-- [Swagger — xem và thử API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger/)
-- [Kiểm tra API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api/health)
+- [Swagger — xem và thử API](https://api.vihx.online/swagger/)
+- [Kiểm tra API](https://api.vihx.online/api/health)
 
 <img src="docs/images/download-apk-qr.png" width="200" alt="Quét QR tải APK Roll call" />
 

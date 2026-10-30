@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 const apiBase = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api',
+  defaultValue: 'https://api.vihx.online/api',
 );
 typedef JsonMap = Map<String, dynamic>;
 
