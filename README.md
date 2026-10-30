@@ -9,7 +9,7 @@ Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **R
 
 ## Tải APK và dùng thử
 
-- [Tải APK Android v1.2.2](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.2/Roll-call-2380602577-v1.2.2.apk)
+- [Tải APK Android v1.2.3](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.3/Roll-call-2380602577-v1.2.3.apk)
 - [Các bản phát hành và source ZIP](https://github.com/Vinh-205/Roll-Call/releases)
 - [Swagger — xem và thử API](https://api.vihx.online/swagger/)
 - [Kiểm tra API](https://api.vihx.online/api/health)
@@ -170,3 +170,7 @@ Sáu ô mã xác thực có chiều rộng bằng nhau, cùng đường cơ sở
 ### Sửa tương thích QR (1.2.2)
 
 Ứng dụng nhận đúng định dạng `catcheck:<sessionId>:<token>` do backend hiện tại cấp. Tên hiển thị Roll call không thay đổi giao thức QR; kiểm tra thời hạn, quyền, GPS và trùng điểm danh vẫn thực hiện ở API.
+
+### Thanh điều hướng kính (1.2.3)
+
+Thanh điều hướng nổi dùng nền trong mờ, blur, viền phản sáng và vùng chọn trượt. Nội dung có vùng hiển thị riêng, giữ nút Tạo lớp/Tham gia lớp phía trên thanh điều hướng. Kiểm thử bố cục ở màn hình rộng 360 px, cỡ chữ 130% cho cả Admin và Sinh viên.

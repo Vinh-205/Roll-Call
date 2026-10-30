@@ -4,6 +4,7 @@ import '../core/api.dart';
 import '../core/ui.dart';
 import '../core/brand.dart';
 import '../core/avatar.dart';
+import '../core/glass_navigation.dart';
 import 'classes.dart';
 import 'attendance.dart';
 import 'focus.dart';
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ? Duration.zero
         : const Duration(milliseconds: 320);
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       body: SafeArea(
         bottom: false,
         child: GestureDetector(
@@ -78,89 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
-          decoration: BoxDecoration(
-            color: const Color(0xff23212c),
-            borderRadius: BorderRadius.circular(29),
-            border: Border.all(color: const Color(0xff484352)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: .2),
-                blurRadius: 26,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Row(
-            children: List.generate(5, (i) {
-              final active = i == index;
-              return Expanded(
-                child: Semantics(
-                  selected: active,
-                  button: true,
-                  label: labels[i],
-                  child: InkWell(
-                    onTap: () => select(i),
-                    borderRadius: BorderRadius.circular(20),
-                    child: AnimatedContainer(
-                      duration: duration,
-                      curve: Curves.easeOutCubic,
-                      transform: Matrix4.translationValues(
-                        0,
-                        active ? -5 : 0,
-                        0,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      decoration: BoxDecoration(
-                        color: active
-                            ? const Color(0xffb2d5e5)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: active
-                            ? [
-                                BoxShadow(
-                                  color: const Color(0xffb2d5e5)
-                                      .withValues(alpha: .18),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          RcIcon(
-                            icons[i],
-                            from: active ? icons[previous] : null,
-                            size: 21,
-                            color: active ? ink : const Color(0xff91afbd),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            labels[i],
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: active ? ink : const Color(0xff91afbd),
-                              fontSize: 9,
-                              fontWeight: active
-                                  ? FontWeight.w800
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
+      bottomNavigationBar: GlassNavigation(
+        index: index,
+        previous: previous,
+        icons: icons,
+        labels: labels,
+        onSelected: select,
       ),
     );
   }
@@ -229,16 +153,19 @@ class _OverviewState extends State<Overview> {
             children: [
               const BrandMark(size: 42),
               const SizedBox(width: 10),
-              Text(
-                'Roll call',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1,
-                  color: isDark ? Colors.white : ink,
+              Expanded(
+                child: Text(
+                  'Roll call',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1,
+                    color: isDark ? Colors.white : ink,
+                  ),
                 ),
               ),
-              const Spacer(),
 
               UserAvatar(
                 userId: s.user!['id'],
@@ -272,10 +199,11 @@ class _OverviewState extends State<Overview> {
             ),
           ),
           const SizedBox(height: 14),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               Tag(roleLabel(s.role).toUpperCase()),
-              const SizedBox(width: 8),
               const Tag('ROLL CALL', color: teal),
             ],
           ),
