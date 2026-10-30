@@ -9,7 +9,7 @@ Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **R
 
 ## Tải APK và dùng thử
 
-- [Tải APK Android v1.2.1](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.1/Roll-call-2380602577-v1.2.1.apk)
+- [Tải APK Android v1.2.2](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.2/Roll-call-2380602577-v1.2.2.apk)
 - [Các bản phát hành và source ZIP](https://github.com/Vinh-205/Roll-Call/releases)
 - [Swagger — xem và thử API](https://api.vihx.online/swagger/)
 - [Kiểm tra API](https://api.vihx.online/api/health)
@@ -166,3 +166,7 @@ Bản 1.2.0 đã build APK release và kiểm tra trên máy ảo. Camera, GPS v
 ### Nhập Email OTP
 
 Sáu ô mã xác thực có chiều rộng bằng nhau, cùng đường cơ sở và trạng thái focus rõ ràng. Một trình nhập hệ thống hỗ trợ dán mã, tự điền OTP và chỉ nhận tối đa sáu chữ số. Đã kiểm thử bố cục rộng 280 px với cỡ chữ 130%.
+
+### Sửa tương thích QR (1.2.2)
+
+Ứng dụng nhận đúng định dạng `catcheck:<sessionId>:<token>` do backend hiện tại cấp. Tên hiển thị Roll call không thay đổi giao thức QR; kiểm tra thời hạn, quyền, GPS và trùng điểm danh vẫn thực hiện ở API.

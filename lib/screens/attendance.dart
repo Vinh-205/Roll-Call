@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/api.dart';
+import '../core/attendance_qr.dart';
 import '../core/ui.dart';
 import 'classes.dart';
 
@@ -346,12 +347,13 @@ class _CheckinScreenState extends State<CheckinScreen> {
 
   Future<void> found(String? value) async {
     if (processing || done || value == null) return;
-    final parts = value.split(':');
-    if (parts.length != 3 || parts[0] != 'Roll call') {
-      setState(() => error = 'Đây không phải mã QR CatCheck.');
+    final payload = parseAttendanceQr(value);
+    if (payload == null) {
+      setState(() => error = 'Đây không phải mã QR điểm danh của Roll call.');
       return;
     }
-    if (widget.expectedSession != null && parts[1] != widget.expectedSession) {
+    if (widget.expectedSession != null &&
+        payload.sessionId != widget.expectedSession) {
       setState(() => error = 'QR không thuộc buổi học đang chọn.');
       return;
     }
@@ -371,9 +373,9 @@ class _CheckinScreenState extends State<CheckinScreen> {
       final p = await getLocation();
       final response = await Api.instance.call(
         'POST',
-        'sessions/${parts[1]}/checkin',
+        'sessions/${payload.sessionId}/checkin',
         data: {
-          'qrToken': parts[2],
+          'qrToken': payload.token,
           'lat': p.latitude,
           'lng': p.longitude,
           'accuracy': p.accuracy,
