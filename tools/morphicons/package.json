@@ -1,0 +1,1 @@
+{"private":true,"type":"module","scripts":{"generate":"node generate.mjs"},"devDependencies":{"morphicons":"^2.0.2"}}

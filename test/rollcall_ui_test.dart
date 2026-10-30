@@ -13,7 +13,7 @@ void main() {
       MaterialApp(home: SplashScreen(onComplete: () => completed++)),
     );
     expect(find.text('Roll call'), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 2500));
+    await tester.pump(const Duration(seconds: 7));
     expect(completed, 1);
     await tester.pump(const Duration(seconds: 1));
     expect(completed, 1);

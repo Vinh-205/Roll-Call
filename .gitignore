@@ -70,3 +70,13 @@ backend/dist/
 /docs/KIEM_THU_THIET_BI_THAT.md
 /docs/RA_SOAT_YEU_CAU.md
 /hovaten.txt
+
+.env
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+
+/hoten.txt
+/TruongTuanVinh.txt

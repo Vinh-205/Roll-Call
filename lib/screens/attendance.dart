@@ -171,7 +171,7 @@ class _SessionScreenState extends State<SessionScreen> {
                 const SizedBox(height: 10),
                 Text(
                   '${session['course_name'] ?? ''}\n${when(session['starts'])} → ${when(session['ends'])}',
-                  style: const TextStyle(color: Color(0xff778399), height: 1.7),
+                  style: TextStyle(color: muted(context), height: 1.7),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -205,10 +205,10 @@ class _SessionScreenState extends State<SessionScreen> {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Mã tự làm mới. Sinh viên cần ở trong phạm vi lớp.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xff778399), fontSize: 12),
+                    style: TextStyle(color: muted(context), fontSize: 12),
                   ),
                   TextButton.icon(
                     onPressed: busy ? null : refresh,
@@ -270,9 +270,9 @@ class _SessionScreenState extends State<SessionScreen> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Quét QR của giảng viên. Ứng dụng sẽ hỏi quyền vị trí trước khi bạn xác nhận.',
-                    style: TextStyle(color: Color(0xff778399), height: 1.6),
+                    style: TextStyle(color: muted(context), height: 1.6),
                   ),
                   const SizedBox(height: 18),
                   SizedBox(
@@ -306,9 +306,9 @@ class _SessionScreenState extends State<SessionScreen> {
                     style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Gửi lý do để giảng viên xem xét. Không tự ý đánh dấu bạn đã có mặt.',
-                    style: TextStyle(color: Color(0xff778399), height: 1.5),
+                    style: TextStyle(color: muted(context), height: 1.5),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
@@ -448,12 +448,12 @@ class _CheckinScreenState extends State<CheckinScreen> {
                   ),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   'Đặt mã QR của giảng viên trong khung hình.\nMã có thời hạn, không dùng ảnh chụp cũ.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xff778399), height: 1.7),
+                  style: TextStyle(color: muted(context), height: 1.7),
                 ),
               ),
               if (processing)
@@ -539,9 +539,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Mỗi lần có mặt, một bước tiến.',
-          style: TextStyle(color: Color(0xff778399)),
+          style: TextStyle(color: muted(context)),
         ),
         const SizedBox(height: 24),
         if (loading)
@@ -576,10 +576,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   const SizedBox(height: 9),
                   Text(
                     '${r['course_name']}\n${when(r['checked'])}',
-                    style: const TextStyle(
-                      color: Color(0xff778399),
-                      height: 1.6,
-                    ),
+                    style: TextStyle(color: muted(context), height: 1.6),
                   ),
                 ],
               ),
@@ -649,10 +646,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   const SizedBox(height: 10),
                   Text(
                     'Đã gửi ${when(r['created'])}',
-                    style: const TextStyle(
-                      color: Color(0xff778399),
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: muted(context), fontSize: 12),
                   ),
                   if (r['review_note'] != null) ...[
                     const Divider(height: 24),
@@ -662,10 +656,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     Text(
                       'Đã xử lý ${when(r['reviewed'])}',
-                      style: const TextStyle(
-                        color: Color(0xff778399),
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: muted(context), fontSize: 12),
                     ),
                   ],
                 ],

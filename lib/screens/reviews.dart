@@ -70,9 +70,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
+        Text(
           'Không chỉ đánh dấu vắng. Hiểu lý do và lưu lại quyết định của bạn.',
-          style: TextStyle(color: Color(0xff778399), height: 1.6),
+          style: TextStyle(color: muted(context), height: 1.6),
         ),
         const SizedBox(height: 24),
         if (loading)
@@ -110,10 +110,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   const SizedBox(height: 8),
                   Text(
                     '${r['course_name']} · ${r['title']}',
-                    style: const TextStyle(
-                      color: Color(0xff778399),
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: muted(context), fontSize: 12),
                   ),
                   const Divider(height: 26),
                   Text(
@@ -123,10 +120,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Đã gửi ${when(r['created'])}',
-                    style: const TextStyle(
-                      color: Color(0xff778399),
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: muted(context), fontSize: 12),
                   ),
                   if (r['status'] == 'pending') ...[
                     const SizedBox(height: 18),
@@ -155,10 +149,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                     ),
                     Text(
                       'Đã xử lý ${when(r['reviewed'])}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff778399),
-                      ),
+                      style: TextStyle(fontSize: 12, color: muted(context)),
                     ),
                   ],
                 ],

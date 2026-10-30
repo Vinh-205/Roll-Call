@@ -1,4 +1,9 @@
+import 'package:lottie/lottie.dart';
+
+import 'theme_reveal.dart';
+
 import 'dart:async';
+
 import 'icons.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,18 +14,19 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'api.dart';
+import 'preferences.dart';
 
-// --- Bảng màu chính (Modern Aesthetic Lucian Labs Inspiration) ---
-const ink = Color(0xff18203a);
-const gold = Color(0xffb8e870);
-const teal = Color(0xff7357e8);
-const tealLight = Color(0xffb8a6ff);
-const paper = Color(0xfff4f5fa);
-
-// Các màu nền Dark Mode hiện đại (Slate/Navy)
-const darkBg = Color(0xff101323);
-const darkCard = Color(0xff1b2034);
-const darkBorder = Color(0xff30374f);
+// Requested brand palette. Aliases preserve the existing screen API.
+const cosmic = Color(0xff23212c);
+const candyBlue = Color(0xffb2d5e5);
+const ink = cosmic;
+const gold = candyBlue;
+const teal = candyBlue;
+const tealLight = candyBlue;
+const paper = candyBlue;
+const darkBg = Color(0xff35313f);
+const darkCard = Color(0xff454151);
+const darkBorder = Color(0xff625c70);
 
 // Quản lý trạng thái Sáng / Tối toàn ứng dụng
 class ThemeController extends ChangeNotifier {
@@ -68,15 +74,23 @@ ThemeData buildLightTheme() {
   final baseScheme = ColorScheme.fromSeed(
     seedColor: teal,
     brightness: Brightness.light,
-    primary: teal,
-    secondary: gold,
+    primary: ink,
+    onPrimary: teal,
+    secondary: teal,
+    onSecondary: ink,
     surface: Colors.white,
+    onSurface: ink,
   );
   return ThemeData(
     useMaterial3: true,
+    actionIconTheme: ActionIconThemeData(
+      backButtonIconBuilder: (_) => const RcIcon(RcIcons.arrowBack, size: 20),
+      closeButtonIconBuilder: (_) => const RcIcon(RcIcons.close, size: 20),
+      drawerButtonIconBuilder: (_) => const RcIcon(RcIcons.menu, size: 20),
+    ),
     brightness: Brightness.light,
     colorScheme: baseScheme,
-    scaffoldBackgroundColor: paper,
+    scaffoldBackgroundColor: AppPreferences.instance.lightBackground ?? paper,
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 0,
@@ -85,8 +99,8 @@ ThemeData buildLightTheme() {
         side: const BorderSide(color: Color(0xffe2e8f0)),
       ),
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: paper,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppPreferences.instance.lightBackground ?? paper,
       foregroundColor: ink,
       centerTitle: false,
       elevation: 0,
@@ -116,14 +130,21 @@ ThemeData buildDarkTheme() {
     seedColor: tealLight,
     brightness: Brightness.dark,
     primary: tealLight,
+    onPrimary: ink,
     secondary: gold,
+    onSecondary: ink,
     surface: darkCard,
   );
   return ThemeData(
     useMaterial3: true,
+    actionIconTheme: ActionIconThemeData(
+      backButtonIconBuilder: (_) => const RcIcon(RcIcons.arrowBack, size: 20),
+      closeButtonIconBuilder: (_) => const RcIcon(RcIcons.close, size: 20),
+      drawerButtonIconBuilder: (_) => const RcIcon(RcIcons.menu, size: 20),
+    ),
     brightness: Brightness.dark,
     colorScheme: baseScheme,
-    scaffoldBackgroundColor: darkBg,
+    scaffoldBackgroundColor: AppPreferences.instance.darkBackground ?? darkBg,
     cardTheme: CardThemeData(
       color: darkCard,
       elevation: 0,
@@ -132,8 +153,8 @@ ThemeData buildDarkTheme() {
         side: const BorderSide(color: darkBorder),
       ),
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: darkBg,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppPreferences.instance.darkBackground ?? darkBg,
       foregroundColor: Colors.white,
       centerTitle: false,
       elevation: 0,
@@ -157,6 +178,11 @@ ThemeData buildDarkTheme() {
     ),
   );
 }
+
+Color muted(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+    ? candyBlue.withValues(alpha: .85)
+    : cosmic.withValues(alpha: .72);
 
 final dateFormat = DateFormat('dd/MM · HH:mm');
 String when(dynamic value) => value == null
@@ -209,7 +235,9 @@ class Tag extends StatelessWidget {
     child: Text(
       text,
       style: TextStyle(
-        color: color,
+        color: color == teal || color == gold
+            ? Theme.of(context).colorScheme.primary
+            : color,
         fontSize: 11,
         fontWeight: FontWeight.w700,
         letterSpacing: .3,
@@ -259,63 +287,83 @@ class Panel extends StatelessWidget {
 }
 
 // Nút chuyển đổi Dark/Light mode tròn nổi
-class ThemeToggleButton extends StatelessWidget {
+class ThemeToggleButton extends StatefulWidget {
   const ThemeToggleButton({super.key});
+  @override
+  State<ThemeToggleButton> createState() => _ThemeToggleButtonState();
+}
+
+class _ThemeToggleButtonState extends State<ThemeToggleButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+    value: ThemeController.instance.isDark ? 1 : 0,
+  );
+  @override
+  void initState() {
+    super.initState();
+    ThemeController.instance.addListener(sync);
+  }
+
+  void sync() {
+    if (!mounted) return;
+    final target = ThemeController.instance.isDark ? 1.0 : 0.0;
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      controller.value = target;
+    } else {
+      controller.animateTo(target, curve: Curves.easeInOutCubic);
+    }
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    ThemeController.instance.removeListener(sync);
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: ThemeController.instance,
-      builder: (context, _) {
-        final isDark = ThemeController.instance.isDark;
-        return Tooltip(
-          message: isDark
-              ? 'Chuyển sang giao diện sáng'
-              : 'Chuyển sang giao diện tối',
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: () => ThemeController.instance.toggleTheme(),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                padding: const EdgeInsets.all(9),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isDark
-                      ? const Color(0xff30374f)
-                      : const Color(0xffe2e8f0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (isDark ? Colors.black : Colors.grey).withValues(
-                        alpha: .15,
-                      ),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (child, anim) => RotationTransition(
-                    turns: anim,
-                    child: ScaleTransition(scale: anim, child: child),
-                  ),
-                  child: RcIcon(
-                    isDark
-                        ? RcIcons.light_mode_rounded
-                        : RcIcons.dark_mode_rounded,
-                    key: ValueKey(isDark),
-                    size: 20,
-                    color: isDark ? gold : ink,
-                  ),
+    final dark = ThemeController.instance.isDark;
+    final label = dark
+        ? 'Chuyển sang giao diện sáng'
+        : 'Chuyển sang giao diện tối';
+    return Semantics(
+      button: true,
+      toggled: dark,
+      label: label,
+      child: Tooltip(
+        message: label,
+        excludeFromSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () =>
+              ThemeReveal.change(context, ThemeController.instance.toggleTheme),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: Lottie.asset(
+                'assets/lottie/day-to-night.json',
+                controller: controller,
+                repeat: false,
+                width: 48,
+                height: 24,
+                fit: BoxFit.contain,
+                onLoaded: (composition) {
+                  controller.duration = composition.duration;
+                  if (!controller.isAnimating) controller.value = dark ? 1 : 0;
+                },
+                errorBuilder: (_, _, _) => RcIcon(
+                  dark ? RcIcons.light_mode_rounded : RcIcons.dark_mode_rounded,
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -355,7 +403,7 @@ class Empty extends StatelessWidget {
         Text(
           body,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Color(0xff778399), height: 1.4),
+          style: TextStyle(color: muted(context), height: 1.4),
         ),
         if (retry != null) ...[
           const SizedBox(height: 16),

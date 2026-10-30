@@ -141,9 +141,9 @@ class _FocusScreenState extends State<FocusScreen> with WidgetsBindingObserver {
         ),
       ),
       const SizedBox(height: 12),
-      const Text(
+      Text(
         'Tập trung 25 phút, nghỉ vận động ngắn. Cảm biến chỉ hoạt động khi bạn bật và ở màn hình này.',
-        style: TextStyle(color: Color(0xff778399), height: 1.6),
+        style: TextStyle(color: muted(context), height: 1.6),
       ),
       const SizedBox(height: 24),
       Container(
@@ -221,15 +221,20 @@ class _FocusScreenState extends State<FocusScreen> with WidgetsBindingObserver {
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Gia tốc không gồm trọng lực',
-              style: TextStyle(color: Color(0xff778399), fontSize: 12),
+              style: TextStyle(color: muted(context), fontSize: 12),
             ),
             const SizedBox(height: 20),
             SizedBox(
               height: 90,
               width: double.infinity,
-              child: CustomPaint(painter: MotionChart(samples)),
+              child: CustomPaint(
+                painter: MotionChart(
+                  samples,
+                  Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -241,10 +246,10 @@ class _FocusScreenState extends State<FocusScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      const Panel(
+      Panel(
         child: Text(
           'Không theo dõi nền, không gửi cảm biến lên máy chủ. Kết quả này không chứng minh bạn đang có mặt tại lớp và không thay thế QR/vị trí.',
-          style: TextStyle(color: Color(0xff778399), height: 1.6),
+          style: TextStyle(color: muted(context), height: 1.6),
         ),
       ),
     ],
@@ -253,7 +258,8 @@ class _FocusScreenState extends State<FocusScreen> with WidgetsBindingObserver {
 
 class MotionChart extends CustomPainter {
   final List<double> samples;
-  MotionChart(this.samples);
+  final Color lineColor;
+  MotionChart(this.samples, this.lineColor);
   @override
   void paint(Canvas canvas, Size size) {
     final grid = Paint()
@@ -280,7 +286,7 @@ class MotionChart extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = teal
+        ..color = lineColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
         ..strokeCap = StrokeCap.round,

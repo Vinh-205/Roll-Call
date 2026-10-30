@@ -6,6 +6,10 @@
     <true />
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Roll call s? d?ng Face ID ?? m? kh?a phi?n ?? ??ng nh?p b?ng m?t kh?u v? OTP.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Roll call cần bạn chọn ảnh từ thư viện để đặt ảnh đại diện.</string>
     <key>CFBundleDisplayName</key>
     <string>Roll call</string>
     <key>CFBundleExecutable</key>

@@ -70,7 +70,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
       actions: [
         IconButton(
           onPressed: load,
-          icon: const RcIcon(RcIcons.refresh),
+          icon: RcIcon(loading ? RcIcons.restart_alt : RcIcons.refresh),
           tooltip: 'Tải lại',
         ),
       ],
@@ -84,9 +84,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               children: [
-                const Text(
+                Text(
                   'Mỗi lớp học là một hành trình.',
-                  style: TextStyle(color: Color(0xff778399)),
+                  style: TextStyle(color: muted(context)),
                 ),
                 const SizedBox(height: 20),
                 if (rows.isEmpty)
@@ -278,7 +278,7 @@ class _ClassScreenState extends State<ClassScreen> {
                   const SizedBox(height: 10),
                   Text(
                     '${course['room']} · ${course['teacher_name']}',
-                    style: const TextStyle(color: Color(0xff778399)),
+                    style: TextStyle(color: muted(context)),
                   ),
                 ],
               ),
@@ -540,10 +540,7 @@ class _SessionEditorState extends State<SessionEditor> {
                   location == null
                       ? 'Chưa đặt vị trí: QR vẫn hoạt động, vị trí sinh viên vẫn được ghi nhận.'
                       : 'Bán kính được kiểm tra tại máy chủ.',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xff778399),
-                  ),
+                  style: TextStyle(fontSize: 12, color: muted(context)),
                 ),
               ],
               if (error != null)

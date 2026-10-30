@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../core/api.dart';
 import '../core/ui.dart';
 import '../core/brand.dart';
+import '../core/avatar.dart';
 import 'classes.dart';
 import 'attendance.dart';
 import 'focus.dart';
 import 'reviews.dart';
+import 'settings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,9 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
           decoration: BoxDecoration(
-            color: const Color(0xff1c2035),
+            color: const Color(0xff23212c),
             borderRadius: BorderRadius.circular(29),
-            border: Border.all(color: const Color(0xff353b54)),
+            border: Border.all(color: const Color(0xff484352)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: .2),
@@ -115,13 +117,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 9),
                       decoration: BoxDecoration(
                         color: active
-                            ? const Color(0xffb8e870)
+                            ? const Color(0xffb2d5e5)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: active
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xffb8e870)
+                                  color: const Color(0xffb2d5e5)
                                       .withValues(alpha: .18),
                                   blurRadius: 12,
                                   offset: const Offset(0, 5),
@@ -134,15 +136,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           RcIcon(
                             icons[i],
+                            from: active ? icons[previous] : null,
                             size: 21,
-                            color: active ? ink : const Color(0xffa5afc8),
+                            color: active ? ink : const Color(0xff91afbd),
                           ),
                           const SizedBox(height: 5),
                           Text(
                             labels[i],
                             maxLines: 1,
                             style: TextStyle(
-                              color: active ? ink : const Color(0xffa5afc8),
+                              color: active ? ink : const Color(0xff91afbd),
                               fontSize: 9,
                               fontWeight: active
                                   ? FontWeight.w800
@@ -236,20 +239,11 @@ class _OverviewState extends State<Overview> {
                 ),
               ),
               const Spacer(),
-              // Nút đổi theme Sáng/Tối
-              const ThemeToggleButton(),
-              const SizedBox(width: 12),
-              CircleAvatar(
-                radius: 19,
-                backgroundColor: gold.withValues(alpha: .22),
-                child: Text(
-                  (s.user!['name'] as String).characters.first,
-                  style: const TextStyle(
-                    color: gold,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
-                  ),
-                ),
+
+              UserAvatar(
+                userId: s.user!['id'],
+                name: s.user!['name'],
+                size: 40,
               ),
             ],
           ),
@@ -259,7 +253,7 @@ class _OverviewState extends State<Overview> {
           Text(
             'Xin chào, ${s.user!['name'].toString().split(' ').last} 👋',
             style: TextStyle(
-              color: isDark ? Colors.white70 : const Color(0xff778399),
+              color: isDark ? Colors.white70 : muted(context),
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
@@ -299,7 +293,7 @@ class _OverviewState extends State<Overview> {
                 ? null
                 : FilledButton.icon(
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xffb8e870),
+                      backgroundColor: const Color(0xffb2d5e5),
                       foregroundColor: ink,
                     ),
                     onPressed: () => Navigator.push(
@@ -343,10 +337,10 @@ class _OverviewState extends State<Overview> {
                           color: isDark ? Colors.white : ink,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Lớp học',
                         style: TextStyle(
-                          color: Color(0xff778399),
+                          color: muted(context),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -376,16 +370,16 @@ class _OverviewState extends State<Overview> {
                       const SizedBox(height: 12),
                       Text(
                         '${upcoming.length}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: teal,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Buổi sắp tới',
                         style: TextStyle(
-                          color: Color(0xff778399),
+                          color: muted(context),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -413,8 +407,8 @@ class _OverviewState extends State<Overview> {
               if (upcoming.isNotEmpty)
                 Text(
                   '${upcoming.length} buổi',
-                  style: const TextStyle(
-                    color: teal,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -469,7 +463,7 @@ class _OverviewState extends State<Overview> {
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -483,10 +477,7 @@ class _OverviewState extends State<Overview> {
                       SizedBox(height: 4),
                       Text(
                         'Giải trình có phản hồi và dấu thời gian.',
-                        style: TextStyle(
-                          color: Color(0xff778399),
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: muted(context), fontSize: 13),
                       ),
                     ],
                   ),
@@ -535,10 +526,10 @@ class SessionTile extends StatelessWidget {
           ),
         ),
         isThreeLine: true,
-        trailing: const RcIcon(
+        trailing: RcIcon(
           RcIcons.arrow_forward_ios_rounded,
           size: 16,
-          color: Color(0xff778399),
+          color: muted(context),
         ),
         onTap: onTap,
       ),
@@ -553,6 +544,76 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+  bool avatarBusy = false;
+  @override
+  void initState() {
+    super.initState();
+    AvatarStore.instance
+        .recover(Session.instance.user!['id'])
+        .catchError((_) {});
+  }
+
+  Future<void> changeAvatar() async {
+    if (avatarBusy) return;
+    final userId = Session.instance.user!['id'] as String;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Đổi ảnh đại diện',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Mở thư viện ảnh của thiết bị và chọn ảnh bạn muốn dùng. Trình chọn ảnh hệ thống sẽ cấp quyền cho ảnh bạn chọn. Ảnh đại diện được lưu trên thiết bị này.',
+                style: TextStyle(height: 1.6),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(ctx, 'choose'),
+                icon: const RcIcon(RcIcons.imageAdd),
+                label: const Text('Chọn từ thư viện'),
+              ),
+              if (AvatarStore.instance.file(userId) != null)
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, 'remove'),
+                  child: const Text('Xóa ảnh đại diện'),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (action == null || !mounted) return;
+    setState(() => avatarBusy = true);
+    try {
+      if (action == 'remove') {
+        await AvatarStore.instance.remove(userId);
+      } else {
+        final selected = await AvatarStore.instance.choose(userId);
+        if (selected && mounted) {
+          toast(context, 'Đã cập nhật ảnh đại diện trên thiết bị này.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        toast(
+          context,
+          'Không chọn được ảnh. Kiểm tra quyền Ảnh/Thư viện trong Cài đặt và thử lại.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => avatarBusy = false);
+    }
+  }
+
   Future<void> profile() async {
     final s = Session.instance;
     final data = await editor(context, 'Chỉnh sửa hồ sơ', [
@@ -589,35 +650,46 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: isDark ? Colors.white : ink,
               ),
             ),
-            const ThemeToggleButton(),
           ],
         ),
         const SizedBox(height: 22),
         Panel(
           child: Column(
             children: [
-              Container(
-                width: 78,
-                height: 78,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [teal, const Color(0xff0f766e)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: teal.withValues(alpha: .35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
+              InkWell(
+                onTap: avatarBusy ? null : changeAvatar,
+                borderRadius: BorderRadius.circular(50),
+                child: Stack(
+                  children: [
+                    UserAvatar(
+                      userId: s.user!['id'],
+                      name: s.user!['name'],
+                      size: 88,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: RcIcon(
+                          avatarBusy ? RcIcons.refresh : RcIcons.edit_rounded,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          autoContrast: false,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: const RcIcon(
-                  RcIcons.pets_rounded,
-                  color: Colors.white,
-                  size: 36,
+              ),
+              TextButton(
+                onPressed: avatarBusy ? null : changeAvatar,
+                child: Text(
+                  avatarBusy ? 'Đang xử lý ảnh…' : 'Đổi ảnh đại diện',
                 ),
               ),
               const SizedBox(height: 16),
@@ -633,7 +705,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 16),
               Text(
                 s.user!['email'],
-                style: const TextStyle(color: Color(0xff778399), fontSize: 14),
+                style: TextStyle(color: muted(context), fontSize: 14),
               ),
               if ((s.user!['studentCode'] ?? '').toString().isNotEmpty) ...[
                 const SizedBox(height: 6),
@@ -669,10 +741,10 @@ class _AccountScreenState extends State<AccountScreen> {
                   'Chỉnh sửa hồ sơ',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                trailing: const RcIcon(
+                trailing: RcIcon(
                   RcIcons.arrow_forward_ios_rounded,
                   size: 15,
-                  color: Color(0xff778399),
+                  color: muted(context),
                 ),
                 onTap: profile,
               ),
@@ -707,10 +779,24 @@ class _AccountScreenState extends State<AccountScreen> {
                       : 'Đang bật chế độ Sáng (Light mode)',
                   style: const TextStyle(fontSize: 12),
                 ),
-                trailing: Switch(
-                  value: isDark,
-                  activeThumbColor: teal,
-                  onChanged: (v) => ThemeController.instance.toggleTheme(),
+                trailing: const ThemeToggleButton(),
+              ),
+              ListTile(
+                leading: const RcIcon(RcIcons.settings, size: 20),
+                title: const Text(
+                  'Cài đặt ứng dụng',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: const Text('Cỡ chữ, màu nền, khuôn mặt / vân tay'),
+                trailing: const RcIcon(RcIcons.chevron_right, size: 18),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsScreen(
+                      onEditProfile: profile,
+                      onEditAvatar: changeAvatar,
+                    ),
+                  ),
                 ),
               ),
               if (s.admin) ...[
@@ -723,12 +809,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xff6366f1).withValues(alpha: .12),
+                      color: const Color(0xffb2d5e5).withValues(alpha: .12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const RcIcon(
                       RcIcons.manage_accounts_rounded,
-                      color: Color(0xff6366f1),
+                      color: Color(0xffb2d5e5),
                       size: 20,
                     ),
                   ),
@@ -736,10 +822,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     'Quản trị tài khoản',
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  trailing: const RcIcon(
+                  trailing: RcIcon(
                     RcIcons.arrow_forward_ios_rounded,
                     size: 15,
-                    color: Color(0xff778399),
+                    color: muted(context),
                   ),
                   onTap: () => Navigator.push(
                     context,
@@ -756,12 +842,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xff778399).withValues(alpha: .12),
+                    color: muted(context).withValues(alpha: .12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const RcIcon(
+                  child: RcIcon(
                     RcIcons.privacy_tip_rounded,
-                    color: Color(0xff778399),
+                    color: muted(context),
                     size: 20,
                   ),
                 ),
@@ -769,10 +855,10 @@ class _AccountScreenState extends State<AccountScreen> {
                   'Quyền riêng tư',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                trailing: const RcIcon(
+                trailing: RcIcon(
                   RcIcons.arrow_forward_ios_rounded,
                   size: 15,
-                  color: Color(0xff778399),
+                  color: muted(context),
                 ),
                 onTap: () => showDialog(
                   context: context,
@@ -801,28 +887,34 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.redAccent,
-            side: const BorderSide(color: Colors.redAccent, width: 1.2),
+        FilledButton.icon(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xff6b3747),
+            minimumSize: const Size(double.infinity, 52),
+            foregroundColor: const Color(0xfff7edf0),
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
           ),
           onPressed: () => s.logout(),
-          icon: const RcIcon(RcIcons.logout_rounded, size: 20),
+          icon: const RcIcon(
+            RcIcons.logout_rounded,
+            size: 20,
+            color: Color(0xfff7edf0),
+            autoContrast: false,
+          ),
           label: const Text(
             'Đăng xuất',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
         const SizedBox(height: 28),
-        const Text(
+        Text(
           'TRƯƠNG TUẤN VĨNH · 2380602577\nNHÓM 4 CON MÈO',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Color(0xff778399),
+            color: muted(context),
             fontSize: 12,
             height: 1.8,
             letterSpacing: .5,
@@ -932,8 +1024,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
                           backgroundColor: teal.withValues(alpha: .15),
                           child: Text(
                             (u['name'] as String).characters.first,
-                            style: const TextStyle(
-                              color: teal,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.w800,
                             ),
                           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/api.dart';
 import '../core/ui.dart';
 import '../core/brand.dart';
+import '../core/biometrics.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -48,6 +49,7 @@ class _AuthScreenState extends State<AuthScreen> {
           },
         );
         await Session.instance.accept(JsonMap.from(result as Map));
+        BiometricSecurity.instance.acceptOtp(Session.instance.user!['id']);
       } else {
         final result = await Api.instance.call(
           'POST',
@@ -96,7 +98,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
                 const Spacer(),
-                const ThemeToggleButton(),
                 const SizedBox(width: 10),
               ],
             ),
@@ -130,7 +131,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ? 'Dùng email thật để nhận mã xác thực.'
                   : 'Tên đăng nhập + mật khẩu, sau đó xác thực qua email.',
               style: TextStyle(
-                color: isDark ? Colors.white60 : const Color(0xff778399),
+                color: isDark ? Colors.white60 : muted(context),
                 height: 1.5,
                 fontSize: 13.5,
               ),
@@ -149,7 +150,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         enabled: !busy,
                         decoration: const InputDecoration(
                           labelText: 'Họ và tên',
-                          prefixIcon: RcIcon(RcIcons.badge_rounded),
+                          prefixIcon: RcIcon(RcIcons.badge_rounded, size: 20),
                         ),
                         validator: (v) =>
                             (v ?? '').trim().isEmpty ? 'Nhập họ tên' : null,
@@ -161,7 +162,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: RcIcon(RcIcons.mail_rounded),
+                          prefixIcon: RcIcon(RcIcons.mail_rounded, size: 20),
                         ),
                         validator: (v) =>
                             !RegExp(r'^\S+@\S+\.\S+$').hasMatch(v ?? '')
@@ -174,7 +175,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         enabled: !busy,
                         decoration: const InputDecoration(
                           labelText: 'Mã sinh viên',
-                          prefixIcon: RcIcon(RcIcons.pin_rounded),
+                          prefixIcon: RcIcon(RcIcons.pin_rounded, size: 20),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -184,7 +185,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       enabled: !busy,
                       decoration: const InputDecoration(
                         labelText: 'Tên đăng nhập',
-                        prefixIcon: RcIcon(RcIcons.person_rounded),
+                        prefixIcon: RcIcon(RcIcons.person_rounded, size: 20),
                       ),
                       validator: (v) => (v ?? '').trim().isEmpty
                           ? 'Nhập tên đăng nhập'
@@ -197,14 +198,18 @@ class _AuthScreenState extends State<AuthScreen> {
                       obscureText: obscure,
                       decoration: InputDecoration(
                         labelText: 'Mật khẩu',
-                        prefixIcon: const RcIcon(RcIcons.lock_rounded),
+                        prefixIcon: const RcIcon(
+                          RcIcons.lock_rounded,
+                          size: 20,
+                        ),
                         suffixIcon: IconButton(
                           onPressed: () => setState(() => obscure = !obscure),
                           icon: RcIcon(
                             obscure
                                 ? RcIcons.visibility_off_rounded
                                 : RcIcons.visibility_rounded,
-                            color: const Color(0xff778399),
+                            color: muted(context),
+                            size: 20,
                           ),
                         ),
                         helperText: register
@@ -235,7 +240,10 @@ class _AuthScreenState extends State<AuthScreen> {
                       textAlign: TextAlign.center,
                       decoration: const InputDecoration(
                         labelText: 'Mã xác thực 6 số',
-                        prefixIcon: RcIcon(RcIcons.verified_user_rounded),
+                        prefixIcon: RcIcon(
+                          RcIcons.verified_user_rounded,
+                          size: 20,
+                        ),
                       ),
                       validator: (v) => !RegExp(r'^\d{6}$').hasMatch(v ?? '')
                           ? 'Nhập đủ 6 chữ số'
@@ -280,19 +288,22 @@ class _AuthScreenState extends State<AuthScreen> {
                     height: 56,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: teal,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context)
+                            .colorScheme
+                            .onPrimary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       onPressed: busy ? null : submit,
                       child: busy
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 22,
                               height: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )
                           : Text(
@@ -327,8 +338,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           : register
                           ? 'Đã có tài khoản? Đăng nhập'
                           : 'Chưa có tài khoản? Đăng ký',
-                      style: const TextStyle(
-                        color: teal,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -338,12 +349,12 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'TRƯƠNG TUẤN VĨNH · 2380602577',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
-                color: Color(0xff778399),
+                color: muted(context),
                 letterSpacing: 1,
                 fontWeight: FontWeight.w600,
               ),

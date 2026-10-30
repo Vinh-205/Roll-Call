@@ -1,6 +1,6 @@
 # Roll call — Điểm danh sinh viên
 
-<img src="docs/images/app-icon.svg" width="88" alt="Roll call" />
+<img src="assets/branding/app-icon.png" width="88" alt="Roll call" />
 
 **Trương Tuấn Vĩnh · 2380602577 · Nhóm 4 con mèo**  
 Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **Roll call**.
@@ -9,7 +9,7 @@ Project Flutter: `truong_tuan_vinh_2380602577_diem_danh`. Tên hiển thị: **R
 
 ## Tải APK và dùng thử
 
-- [Tải APK Android v1.1.0](https://github.com/Vinh-205/Roll-Call/releases/download/v1.1.0/Roll-call-2380602577-v1.1.0.apk)
+- [Tải APK Android v1.2.0](https://github.com/Vinh-205/Roll-Call/releases/download/v1.2.0/Roll-call-2380602577-v1.2.0.apk)
 - [Các bản phát hành và source ZIP](https://github.com/Vinh-205/Roll-Call/releases)
 - [Swagger — xem và thử API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/swagger/)
 - [Kiểm tra API](https://truong-tuan-vinh-2380602577-roll-call.truong-tuan-vinh-2577.workers.dev/api/health)
@@ -29,11 +29,13 @@ Android: tải APK, cho phép cài đặt từ trình duyệt nếu Android yêu
 | Vị trí | Lấy GPS khi xác nhận; kiểm tra độ chính xác và bán kính buổi học; không theo dõi nền |
 | Chuyển động | Gia tốc kế trực tiếp, đồ thị, đếm đợt chuyển động; phiên tập trung 25 phút và nhắc nghỉ |
 | Giải trình | Sinh viên gửi lý do; giảng viên/Admin chấp nhận hoặc từ chối, ghi chú và thời gian xử lý |
-| Giao diện | Sáng/tối được lưu, thanh điều hướng nổi, chuyển trang trượt, icon SVG đồng bộ, splash Lottie thích nghi |
+| Giao diện | Cosmic `#23212C` / Candy Blue `#B2D5E5`; nút Lottie ngày/đêm; chuyển theme lan tròn toàn màn hình; splash điện thoại kèm tên Roll call |
 
 Điểm danh kết hợp mã QR có thời hạn và vị trí; màn hình Nhịp học sử dụng cảm biến chuyển động của thiết bị.
 
 ## Giao diện
+
+Màu chủ đạo: **Cosmic `#23212C`** và **Candy Blue `#B2D5E5`**. Chế độ tối mặc định dùng biến thể Cosmic dịu `#35313F` và thẻ `#454151` để giảm cảm giác quá tối; trong Cài đặt có thể chọn Cosmic gốc hoặc nền sáng hơn. Nút Day to Night chạy thuận/ngược theo chế độ; thay đổi theme lan từ nút bấm ra toàn màn hình và giữ nguyên trang/nội dung đang nhập. Khi thiết bị bật giảm chuyển động, hiệu ứng lan được bỏ qua.
 
 <img src="docs/images/home-light.png" width="260" alt="Giao diện sáng" /> <img src="docs/images/home-dark.png" width="260" alt="Giao diện tối" />
 
@@ -73,9 +75,21 @@ Tên package Flutter giữ nhận diện tác giả. iOS có source nhưng chưa
 4. Sinh viên tham gia bằng mã lớp, bấm Quét QR điểm danh, cho phép camera/vị trí và quét QR trên màn hình giảng viên. Điện thoại phải ở trong bán kính và GPS đủ chính xác.
 5. Xem lịch sử. Nếu không điểm danh được, gửi giải trình từ buổi học; giảng viên duyệt và ghi chú.
 6. Mở Nhịp học, bật Chuyển động trực tiếp rồi nghiêng điện thoại nhẹ. Khi rời trang, cảm biến/timer được hủy theo vòng đời màn hình.
-7. Nút mặt trăng/mặt trời ở Trang chủ, đăng nhập hoặc Cá nhân chuyển giao diện sáng/tối.
+7. Chỉ có một nút Day to Night nhỏ tại Cá nhân → Giao diện Sáng / Tối. Bấm để đổi theme với hiệu ứng lan tròn.
 
 - [Link API và endpoint](docs/LINK_API.txt)
+
+## Ảnh đại diện và thư viện ảnh
+
+Trong **Cá nhân**, chạm ảnh đại diện hoặc **Đổi ảnh đại diện → Chọn từ thư viện**. Trình chọn ảnh hệ thống cấp quyền cho ảnh được chọn; Android 13+ dùng Photo Picker, Android cũ dùng trình chọn tệp/ảnh. Máy ảo cần có ảnh trong Pictures/DCIM để chọn. Ảnh được sao chép vào bộ nhớ riêng của ứng dụng, tách theo ID tài khoản, giữ sau khi khởi động lại và có thể xóa. Ảnh đại diện hiện chỉ lưu trên thiết bị, chưa đồng bộ backend. iOS đã khai báo mô tả quyền thư viện ảnh; chưa kiểm thử trên thiết bị Apple.
+
+## Cài đặt và sinh trắc học
+
+**Cá nhân → Cài đặt ứng dụng** cho phép đổi cỡ chữ 90–130%, chọn màu nền riêng cho sáng/tối, cập nhật hồ sơ và ảnh đại diện. Các lựa chọn được lưu trên thiết bị. Nút Day to Night chỉ có một vị trí trong Cá nhân.
+
+Sau lần đăng nhập mật khẩu + Email OTP, có thể bật **Khuôn mặt / Vân tay**. Ứng dụng yêu cầu xác thực sinh trắc học thành công trước khi lưu lựa chọn. Lần mở app sau dùng phiên đã được lưu bảo mật, kiểm tra token với API rồi yêu cầu sinh trắc học trước khi hiển thị các trang đã đăng nhập. Khi phiên hết hạn hoặc sau khi đăng xuất, vẫn cần mật khẩu + OTP. Sau hơn một phút ở nền, ứng dụng yêu cầu mở khóa lại nếu đã bật tính năng.
+
+Dùng `local_auth` của Flutter, `FlutterFragmentActivity` và Android `USE_BIOMETRIC`; iOS có `NSFaceIDUsageDescription`. Thiết bị/hệ điều hành quyết định phương thức khả dụng; không đảm bảo mọi điện thoại Android đều cho ứng dụng dùng nhận diện khuôn mặt. Không lưu ảnh khuôn mặt, mẫu vân tay hoặc mật khẩu. Nếu chưa đăng ký sinh trắc học trên thiết bị, màn hình hướng dẫn thiết lập hoặc tiếp tục dùng OTP. Máy ảo cần tự đăng ký vân tay ảo trong Android Settings để thử giao diện xác thực thật. Các kiểm thử tự động sử dụng authenticator giả lập, chưa thay thế kiểm thử phần cứng trên điện thoại thật.
 
 ## Thử Swagger
 
@@ -133,7 +147,11 @@ Backend đang hoạt động công khai; để chạy app không cần triển k
 
 ## Nguồn giao diện và giấy phép
 
-[Lucian UX/UI patterns](https://lucianlabs.dev/uxui-prompt/): tham khảo floating dock, form focus, startup transition và bố cục thẻ. [Morphicons](https://www.morphicons.com/) là thư viện chuyển đổi icon cho JavaScript, không có SDK Flutter chính thức; app dùng các đường SVG **Lucide** theo định dạng/nguồn icon được Morphicons hỗ trợ, hiển thị và animate bằng Flutter, không nhúng React/WebView. [Lucide](https://lucide.dev/) theo ISC; ghi nhận tại `docs/licenses`. Logo Roll call được vẽ riêng. Animation được thích nghi từ `Smart TB.json` người dùng cung cấp: giữ các lớp chuyển động, bỏ logo precomposition cũ, đổi màu/nhịp và ghép logo Roll call.
+[Lucian UX/UI patterns](https://lucianlabs.dev/uxui-prompt/) được tham khảo cho bố cục. **Morphicons 2.0.2 được sử dụng thực sự ở bước tạo dữ liệu icon**: script `tools/morphicons/generate.mjs` gọi các hàm chính thức `iconToCubics`, `resampleIcon`, `buildPlan`, `interpPolar`. Flutter vẽ các đường cong/kế hoạch đó trực tiếp bằng Canvas, với nội suy polar và spring chuyển từ mã nguồn MIT. Không nhúng WebView; đây là adapter Flutter của dự án, không phải SDK Flutter chính thức của Morphicons. Các nút điều hướng, play/pause, hiện/ẩn mật khẩu dùng kế hoạch chuyển hình; tất cả icon dùng đường cong đã chuẩn hóa qua Morphicons. Test đối chiếu tọa độ Flutter với kết quả thư viện JavaScript chính thức.
+
+Để tạo lại dữ liệu: `cd tools/morphicons`, `npm ci`, `npm run generate`. Dữ liệu sinh ra đã được commit nên chạy Flutter không cần Node.js. Nguồn icon đầu vào Lucide (ISC), Morphicons (MIT), giấy phép ở `docs/licenses`.
+
+Icon điểm danh và hai animation `Day to Night.json`, `Smartphones Applications.json` do chủ dự án cung cấp. Nút Day to Night dùng Lottie theo yêu cầu riêng; icon các chức năng dùng Morphicons. Các asset đóng gói trong app, không cần tải animation qua mạng.
 
 ## Kiểm tra source
 
@@ -143,4 +161,4 @@ flutter test
 node --test cloudflare-gateway/test.mjs
 ```
 
-Bản 1.1.0 đã build APK release và kiểm tra trên máy ảo. Camera, GPS và cảm biến cần thiết bị Android có phần cứng tương ứng để kiểm thử đầy đủ.
+Bản 1.2.0 đã build APK release và kiểm tra trên máy ảo. Camera, GPS và cảm biến cần thiết bị Android có phần cứng tương ứng để kiểm thử đầy đủ.
